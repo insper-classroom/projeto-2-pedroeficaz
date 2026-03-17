@@ -18,7 +18,22 @@ def listar_imoveis():
 
     rows = cursor.fetchall()
 
+    imoveis = [
+        {
+            "id": row[0],
+            "logradouro": row[1],
+            "tipo_logradouro": row[2],
+            "bairro": row[3],
+            "cidade": row[4],
+            "cep": row[5],
+            "tipo": row[6],
+            "valor": row[7],
+            "data_aquisicao": row[8],
+        }
+        for row in rows
+    ]
+
     cursor.close()
     conn.close()
 
-    return jsonify([]), 200
+    return jsonify(imoveis), 200
