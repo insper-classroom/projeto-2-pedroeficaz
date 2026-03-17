@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -12,9 +12,25 @@ def listar_imoveis():
     conn = conectar_banco()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis"
-    )
+    tipo = request.args.get("tipo")
+    cidade = request.args.get("cidade")
+
+    if tipo:
+        cursor.execute(
+            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE tipo = ?",
+            (tipo,)
+        )
+
+    elif cidade:
+        cursor.execute(
+            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE cidade = ?",
+            (cidade,)
+        )
+
+    else:
+        cursor.execute(
+            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis"
+        )
 
     rows = cursor.fetchall()
 
