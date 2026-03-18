@@ -53,3 +53,37 @@ def listar_imoveis():
     conn.close()
 
     return jsonify(imoveis), 200
+
+
+
+@app.route("/imoveis", methods=["POST"])
+def criar_imovel():
+    data = request.json or {}
+
+    if "logradouro" not in data or "cidade" not in data:
+        return jsonify({"erro": "Campos obrigatórios: logradouro, cidade"}), 400
+
+    conn = conectar_banco()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            data.get("logradouro"),
+            data.get("tipo_logradouro"),
+            data.get("bairro"),
+            data.get("cidade"),
+            data.get("cep"),
+            data.get("tipo"),
+            data.get("valor"),
+            data.get("data_aquisicao"),
+        )
+    )
+
+    conn.commit()
+    new_id = cursor.lastrowid
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"id": new_id}), 201
