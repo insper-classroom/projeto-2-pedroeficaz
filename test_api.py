@@ -122,7 +122,6 @@ def test_filtrar_por_tipo(mock_conectar_banco, client):
 
 
 # GET /imoveis?cidade=
-
 @patch("api.conectar_banco")
 def test_filtrar_por_cidade(mock_conectar_banco, client):
     mock_conn = MagicMock()
