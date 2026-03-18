@@ -87,3 +87,40 @@ def criar_imovel():
     conn.close()
 
     return jsonify({"id": new_id}), 201
+
+
+
+
+@app.route("/imoveis/<int:id>", methods=["GET"])
+def obter_imovel(id):
+    conn = conectar_banco()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = ?",
+        (id,)
+    )
+
+    row = cursor.fetchone()
+
+    if not row:
+        cursor.close()
+        conn.close()
+        return jsonify({"erro": "Imóvel não encontrado"}), 404
+
+    imovel = {
+        "id": row[0],
+        "logradouro": row[1],
+        "tipo_logradouro": row[2],
+        "bairro": row[3],
+        "cidade": row[4],
+        "cep": row[5],
+        "tipo": row[6],
+        "valor": row[7],
+        "data_aquisicao": row[8],
+    }
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(imovel), 200
