@@ -124,3 +124,42 @@ def obter_imovel(id):
     conn.close()
 
     return jsonify(imovel), 200
+
+
+@app.route("/imoveis/<int:id>", methods=["PUT"])
+def atualizar_imovel(id):
+    data = request.json or {}
+
+    # validação mínima
+    if "logradouro" not in data or "cidade" not in data:
+        return jsonify({"erro": "Campos obrigatórios: logradouro, cidade"}), 400
+
+    conn = conectar_banco()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "UPDATE imoveis SET logradouro = ?, tipo_logradouro = ?, bairro = ?, cidade = ?, cep = ?, tipo = ?, valor = ?, data_aquisicao = ? WHERE id = ?",
+        (
+            data.get("logradouro"),
+            data.get("tipo_logradouro"),
+            data.get("bairro"),
+            data.get("cidade"),
+            data.get("cep"),
+            data.get("tipo"),
+            data.get("valor"),
+            data.get("data_aquisicao"),
+            id
+        )
+    )
+
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        cursor.close()
+        conn.close()
+        return jsonify({"erro": "Imóvel não encontrado"}), 404
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"mensagem": "Imóvel atualizado com sucesso"}), 200
