@@ -163,3 +163,27 @@ def atualizar_imovel(id):
     conn.close()
 
     return jsonify({"mensagem": "Imóvel atualizado com sucesso"}), 200
+
+
+
+@app.route("/imoveis/<int:id>", methods=["DELETE"])
+def deletar_imovel(id):
+    conn = conectar_banco()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM imoveis WHERE id = ?",
+        (id,)
+    )
+
+    conn.commit()
+
+    if cursor.rowcount == 0:
+        cursor.close()
+        conn.close()
+        return jsonify({"erro": "Imóvel não encontrado"}), 404
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"mensagem": "Imóvel removido com sucesso"}), 200
