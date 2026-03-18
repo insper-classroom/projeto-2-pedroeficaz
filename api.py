@@ -1,10 +1,23 @@
 from flask import Flask, jsonify, request
+import mysql.connector
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 
 def conectar_banco():
-    pass
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+        ssl_ca=os.getenv("SSL_CA_PATH")
+    )
+    
 
 
 @app.route("/imoveis", methods=["GET"])
@@ -17,13 +30,13 @@ def listar_imoveis():
 
     if tipo:
         cursor.execute(
-            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE tipo = ?",
+            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE tipo = %s",
             (tipo,)
         )
 
     elif cidade:
         cursor.execute(
-            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE cidade = ?",
+            "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE cidade = %s",
             (cidade,)
         )
 
@@ -44,7 +57,7 @@ def listar_imoveis():
             "cep": row[5],
             "tipo": row[6],
             "valor": row[7],
-            "data_aquisicao": row[8],
+            "data_aquisicao": row[8].strftime("%Y-%m-%d") if hasattr(row[8], "strftime") else row[8],
         }
         for row in rows
     ]
@@ -67,7 +80,7 @@ def criar_imovel():
     cursor = conn.cursor()
 
     cursor.execute(
-        "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
         (
             data.get("logradouro"),
             data.get("tipo_logradouro"),
@@ -97,7 +110,7 @@ def obter_imovel(id):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = ?",
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = %s",
         (id,)
     )
 
@@ -117,7 +130,7 @@ def obter_imovel(id):
         "cep": row[5],
         "tipo": row[6],
         "valor": row[7],
-        "data_aquisicao": row[8],
+        "data_aquisicao": row[8].strftime("%Y-%m-%d") if hasattr(row[8], "strftime") else row[8],
     }
 
     cursor.close()
@@ -130,7 +143,6 @@ def obter_imovel(id):
 def atualizar_imovel(id):
     data = request.json or {}
 
-    # validação mínima
     if "logradouro" not in data or "cidade" not in data:
         return jsonify({"erro": "Campos obrigatórios: logradouro, cidade"}), 400
 
@@ -138,7 +150,7 @@ def atualizar_imovel(id):
     cursor = conn.cursor()
 
     cursor.execute(
-        "UPDATE imoveis SET logradouro = ?, tipo_logradouro = ?, bairro = ?, cidade = ?, cep = ?, tipo = ?, valor = ?, data_aquisicao = ? WHERE id = ?",
+        "UPDATE imoveis SET logradouro = %s, tipo_logradouro = %s, bairro = %s, cidade = %s, cep = %s, tipo = %s, valor = %s, data_aquisicao = %s WHERE id = %s",
         (
             data.get("logradouro"),
             data.get("tipo_logradouro"),
@@ -172,7 +184,7 @@ def deletar_imovel(id):
     cursor = conn.cursor()
 
     cursor.execute(
-        "DELETE FROM imoveis WHERE id = ?",
+        "DELETE FROM imoveis WHERE id = %s",
         (id,)
     )
 
@@ -187,3 +199,7 @@ def deletar_imovel(id):
     conn.close()
 
     return jsonify({"mensagem": "Imóvel removido com sucesso"}), 200
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
