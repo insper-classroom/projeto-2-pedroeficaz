@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import mysql.connector
 import os
 from dotenv import load_dotenv
+from mysql.connector import Error
 
 load_dotenv()
 
@@ -9,14 +10,18 @@ app = Flask(__name__)
 
 
 def conectar_banco():
-    return mysql.connector.connect(
-        host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT")),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME"),
-        ssl_ca=os.getenv("SSL_CA_PATH")
-    )
+    try:
+        return mysql.connector.connect(
+            host=os.getenv("DB_HOST"),
+            port=int(os.getenv("DB_PORT")),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME"),
+            ssl_ca=os.getenv("SSL_CA_PATH")
+        )
+    except Error as err:
+        raise Exception("Erro ao conectar ao banco")
+
     
 
 
