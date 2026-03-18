@@ -114,7 +114,7 @@ def test_filtrar_por_tipo(mock_conectar_banco, client):
     ]
 
     mock_cursor.execute.assert_called_once_with(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE tipo = ?",
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE tipo = %s",
         ("casa",)
     )
     mock_cursor.close.assert_called_once()
@@ -153,7 +153,7 @@ def test_filtrar_por_cidade(mock_conectar_banco, client):
     ]
 
     mock_cursor.execute.assert_called_once_with(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE cidade = ?",
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE cidade = %s",
         ("RJ",)
     )
     mock_cursor.close.assert_called_once()
@@ -189,7 +189,7 @@ def test_criar_imovel_ok(mock_conectar_banco, client):
     assert resp.get_json() == {"id": 10}
 
     mock_cursor.execute.assert_called_once_with(
-        "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO imoveis (logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
         ("Rua Nova", "Rua", "Centro", "SP", "99999", "casa", 400000, "2022-01-01")
     )
     mock_conn.commit.assert_called_once()
@@ -237,7 +237,7 @@ def test_obter_imovel_ok(mock_conectar_banco, client):
 }
 
     mock_cursor.execute.assert_called_once_with(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = ?",
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = %s",
         (1,)
     )
     mock_cursor.close.assert_called_once()
@@ -260,7 +260,7 @@ def test_obter_imovel_not_found(mock_conectar_banco, client):
     assert resp.get_json() == {"erro": "Imóvel não encontrado"}
 
     mock_cursor.execute.assert_called_once_with(
-        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = ?",
+        "SELECT id, logradouro, tipo_logradouro, bairro, cidade, cep, tipo, valor, data_aquisicao FROM imoveis WHERE id = %s",
         (999,)
     )
     mock_cursor.close.assert_called_once()
@@ -296,7 +296,7 @@ def test_atualizar_imovel_ok(mock_conectar_banco, client):
     assert resp.get_json() == {"mensagem": "Imóvel atualizado com sucesso"}
 
     mock_cursor.execute.assert_called_once_with(
-        "UPDATE imoveis SET logradouro = ?, tipo_logradouro = ?, bairro = ?, cidade = ?, cep = ?, tipo = ?, valor = ?, data_aquisicao = ? WHERE id = ?",
+        "UPDATE imoveis SET logradouro = %s, tipo_logradouro = %s, bairro = %s, cidade = %s, cep = %s, tipo = %s, valor = %s, data_aquisicao = %s WHERE id = %s",
         ("Rua Atualizada", "Rua", "Centro", "SP", "12345", "casa", 550000, "2023-01-01", 1)
     )
     mock_conn.commit.assert_called_once()
@@ -359,7 +359,7 @@ def test_deletar_imovel_ok(mock_conectar_banco, client):
     assert resp.get_json() == {"mensagem": "Imóvel removido com sucesso"}
 
     mock_cursor.execute.assert_called_once_with(
-        "DELETE FROM imoveis WHERE id = ?",
+        "DELETE FROM imoveis WHERE id = %s",
         (1,)
     )
     mock_conn.commit.assert_called_once()
@@ -381,7 +381,7 @@ def test_deletar_imovel_not_found(mock_conectar_banco, client):
     assert resp.get_json() == {"erro": "Imóvel não encontrado"}
 
     mock_cursor.execute.assert_called_once_with(
-        "DELETE FROM imoveis WHERE id = ?",
+        "DELETE FROM imoveis WHERE id = %s",
         (999,)
     )
     mock_conn.commit.assert_called_once()
