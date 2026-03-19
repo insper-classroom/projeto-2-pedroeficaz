@@ -61,7 +61,7 @@ def listar_imoveis():
             "cidade": row[4],
             "cep": row[5],
             "tipo": row[6],
-            "valor": row[7],
+            "valor": float(row[7]),
             "data_aquisicao": row[8].strftime("%Y-%m-%d") if hasattr(row[8], "strftime") else row[8],
         }
         for row in rows
@@ -134,7 +134,7 @@ def obter_imovel(id):
         "cidade": row[4],
         "cep": row[5],
         "tipo": row[6],
-        "valor": row[7],
+        "valor": float(row[7]),
         "data_aquisicao": row[8].strftime("%Y-%m-%d") if hasattr(row[8], "strftime") else row[8],
     }
 
